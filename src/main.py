@@ -1,7 +1,4 @@
 import asyncio
-import time
-from contextlib import contextmanager
-from typing import Callable
 
 import mss
 from PIL import Image
@@ -10,13 +7,6 @@ from PIL.Image import Palette, Dither
 from gamesense import GameSense
 
 SCT = mss.mss()
-
-
-@contextmanager
-def catchtime(name: str) -> Callable[[], float]:
-    start = time.perf_counter()
-    yield lambda: time.perf_counter() - start
-    print(f'{name}: {(time.perf_counter() - start) * 1000:.2f}ms')
 
 
 class OLED_Displayer:
