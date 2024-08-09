@@ -13,6 +13,12 @@ class DrawMode(Enum):
     FLIP = 2
 
 
+def distance(point1, point2):
+    x1, y1 = point1
+    x2, y2 = point2
+    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+
 def get_text_width(text: str) -> int:
     return len(text) * 8
 
@@ -75,7 +81,16 @@ class BasicGTK:
         self.draw_rect(x + border, y + border, w - border * 2, h - border * 2, DrawMode.BLACK)
         self.draw_rect(x + border, y + border, math.floor((w - border * 2) * v), h - border * 2, DrawMode.WHITE)
 
-    def set_pixel(self, x: int, y: int, v: DrawMode = DrawMode.WHITE):
+    def draw_circle(self, cx: int, cy: int, r: float, mode: DrawMode = DrawMode.WHITE):
+        if r < 0:
+            return
+
+        for x in range(self.screen.size[0]):
+            for y in range(self.screen.size[1]):
+                if distance((cx, cy), (x, y)) < r:
+                    self.set_pixel(x, y, mode)
+
+    def set_pixel(self, x: int, y: int, v: DrawMode):
         if x < 0 or y < 0 or x > self.screen.size[0] or y > self.screen.size[1]:
             return
 

@@ -51,10 +51,15 @@ async def get_media_info() -> None:
         if not media.playing:
             last_position_updated = datetime.now()
 
-        if latest_media and latest_media.playing != media.playing and latest_media.title == media.title:
-            if media.playing:
-                latest_event = 'resumed'
+        if latest_media:
+            is_new_song = latest_media.title != media.title or latest_media.artist != media.artist
+            if is_new_song:
+                latest_event = 'new_song'
             else:
-                latest_event = 'paused'
+                if latest_media.playing != media.playing:
+                    if media.playing:
+                        latest_event = 'resumed'
+                    else:
+                        latest_event = 'paused'
 
         latest_media = media

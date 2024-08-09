@@ -1,5 +1,6 @@
 import asyncio
 import math
+import time
 from contextlib import suppress
 
 import media
@@ -15,11 +16,13 @@ def format_seconds(seconds: float) -> str:
 
 
 async def draw_thread(screen: OLEDScreen):
+    event_start = None
+
     while True:
         sleep = 0.1
 
         async with BasicGTK(screen) as gtk:
-            if media.latest_event:
+            if media.latest_event in ['resumed', 'paused']:
                 gtk.draw_center_text(2, media.latest_event)
                 media.latest_event = None
                 sleep = 1
@@ -37,6 +40,18 @@ async def draw_thread(screen: OLEDScreen):
                                          DrawMode.FLIP)
                 else:
                     gtk.draw_text(2, 2, "No music")
+
+            if media.latest_event == 'new_song':
+                if event_start is None:
+                    event_start = time.time()
+
+                elapsed = time.time() - event_start
+                gtk.draw_circle(64, 20, elapsed * 50, DrawMode.FLIP)
+                gtk.draw_circle(64, 20, (elapsed - 0.4) * 50, DrawMode.FLIP)
+
+                if time.time() - event_start > 2:
+                    media.latest_event = None
+                    event_start = None
 
         await asyncio.sleep(sleep)
 

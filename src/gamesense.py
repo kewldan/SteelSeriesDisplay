@@ -62,7 +62,7 @@ class GameSense():
 
     # event stuff
     async def bind_event(self, event_name: str, min_value=0, max_value=100, icon_id=None, handlers: list = None,
-                   data_fields: list = None, game_name: str = None, full_data: dict = None):
+                         data_fields: list = None, game_name: str = None, full_data: dict = None):
         """
         Bind an event to this game
         """
