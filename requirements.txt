@@ -1,0 +1,5 @@
+mss~=9.0.1
+winsdk~=1.0.0b10
+aiohttp[speedups]~=3.9.5
+pydantic~=2.8.2
+pillow~=10.4.0
