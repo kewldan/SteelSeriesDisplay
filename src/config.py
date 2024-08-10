@@ -13,10 +13,10 @@ class Config(BaseModel):
     transition: Literal['disabled', 'circle', 'slide'] = 'circle'
     refresh_rate: int = 10
     music_refresh_rate: int = 20
-    events_duration: float = 1.
+    events_duration: float = 0.
     text_speed: float = 6.
-    row_gap: int = 6
     view: ViewName = 'with_icon'
+    carousel_stop_time: float = 3.
 
     def __init__(self) -> None:
         if os.path.exists('config.json'):

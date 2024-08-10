@@ -3,6 +3,7 @@ import time
 from enum import Enum
 from typing import Callable
 
+from config import config
 from screen import OLEDScreen
 from .alphabet import bitmap_font
 
@@ -80,11 +81,11 @@ class BasicGTK:
 
             full_cycle = width / speed
 
-            cycle = time.time() % (full_cycle + 2)
-            if cycle < 2:
+            cycle = time.time() % (full_cycle + config.carousel_stop_time)
+            if cycle < config.carousel_stop_time:
                 self.draw_text(x, y, text)
             else:
-                self.draw_text(x - (math.floor((cycle - 2) * speed) % width), y, text * 2,
+                self.draw_text(x - (math.floor((cycle - config.carousel_stop_time) * speed) % width), y, text * 2,
                                bounds=(x, y, *self.screen.size), **kwargs)
         else:
             self.draw_text(x, y, text)

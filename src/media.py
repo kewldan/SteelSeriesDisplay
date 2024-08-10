@@ -85,10 +85,11 @@ async def get_media_info() -> None:
         if not media.playing:
             last_position_updated = datetime.now()
 
+        await save_icon(info.thumbnail)
+
         if latest_media:
             is_new_song = latest_media.title != media.title or latest_media.artist != media.artist
             if is_new_song:
-                await save_icon(info.thumbnail)
                 latest_event = 'new_song'
             else:
                 if latest_media.playing != media.playing:
@@ -96,8 +97,6 @@ async def get_media_info() -> None:
                         latest_event = 'resumed'
                     else:
                         latest_event = 'paused'
-        else:
-            await save_icon(info.thumbnail)
 
         latest_media = media
     else:
