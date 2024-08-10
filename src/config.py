@@ -12,6 +12,7 @@ class Config(BaseModel):
     width: int = 128
     height: int = 40
     transition: Transition = 'circle'
+    transition_duration: float = 3.
     refresh_rate: int = 10
     music_refresh_rate: int = 20
     events_duration: float = 0.

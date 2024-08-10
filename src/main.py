@@ -60,7 +60,7 @@ async def draw_thread(screen: OLEDScreen):
                     screen_gtk.draw_bitmap(0, 0, main_buffer.size[0], main_buffer.size[1], gtk.buffer.buffer,
                                            f=DrawMode.BLACK)
                 case 'slide_x':
-                    x = -math.floor(elapsed * (screen.size[0] / 3))
+                    x = -math.floor(elapsed * (screen.size[0] / config.transition_duration))
 
                     screen_gtk.draw_bitmap(x, 0, screen.size[0], screen.size[1], super_buffer.buffer,
                                            f=DrawMode.BLACK)
@@ -68,7 +68,7 @@ async def draw_thread(screen: OLEDScreen):
                                            gtk.buffer.buffer,
                                            f=DrawMode.BLACK)
                 case 'slide_y':
-                    y = -math.floor(elapsed * (screen.size[1] / 3))
+                    y = -math.floor(elapsed * (screen.size[1] / config.transition_duration))
 
                     screen_gtk.draw_bitmap(0, y, screen.size[0], screen.size[1], super_buffer.buffer,
                                            f=DrawMode.BLACK)
@@ -78,7 +78,7 @@ async def draw_thread(screen: OLEDScreen):
                 case _:
                     raise NotImplementedError(f'Unknown transition: {using_transition}')
 
-            if time.time() - event_start > 3:
+            if time.time() - event_start > config.transition_duration:
                 media.latest_event = None
                 event_start = None
                 super_buffer = None
