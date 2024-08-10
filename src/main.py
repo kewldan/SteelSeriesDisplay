@@ -1,5 +1,4 @@
 import asyncio
-import math
 import time
 from contextlib import suppress
 
@@ -9,35 +8,7 @@ from gamesense import GameSense
 from gtk import BasicGTK
 from gtk.manager import DrawMode
 from screen import OLEDScreen
-
-
-def format_seconds(seconds: float) -> str:
-    seconds = math.floor(seconds)
-    return f'{seconds // 60:02}:{seconds % 60:02}'
-
-
-def draw_icon(arr: list, w: int, h: int):
-    if len(arr) < w * h:
-        rows = []
-        for r in range(0, len(arr), len(arr) // w):
-            rows.append(arr[r:r + len(arr) // h - 1])
-        for i, r in enumerate(rows):
-            if len(r) < w:
-                rows[i].extend([0] * (w - len(r)))
-        if len(rows) < h:
-            rows.extend([[0] * w] * (h - len(rows)))
-        arr = [a for b in rows for a in b]
-
-    new_arr = []
-    temp_byte = ''
-    for c in arr:
-        if int(c) > 1:
-            c = 1
-        temp_byte += str(c)
-        if len(temp_byte) == 8:
-            new_arr.append(int(temp_byte, 2))
-            temp_byte = ''
-    return new_arr
+from views import views
 
 
 async def draw_thread(screen: OLEDScreen):
@@ -52,24 +23,10 @@ async def draw_thread(screen: OLEDScreen):
                 media.latest_event = None
                 sleep = config.events_duration
             else:
-                if media.latest_icon:
-                    b = draw_icon(media.latest_icon, 40, 40)
-
-                    gtk.draw_bitmap(0, 0, 40, 40, b)
-
                 if media.latest_media:
-                    gtk.draw_text(42, 0, media.latest_media.title, config.text_speed)
-                    gtk.draw_text(42, 7 + config.row_gap, media.latest_media.artist, config.text_speed)
-
-                    position_progress = (
-                            media.latest_media.calculated_position.total_seconds() / media.latest_media.end.total_seconds())
-
-                    gtk.draw_progress(2, 14 + config.row_gap * 2, screen.size[0] - 4, 10, position_progress)
-                    gtk.draw_center_text(14 + config.row_gap * 2 + 2,
-                                         f'{format_seconds(media.latest_media.calculated_position.total_seconds())} - {format_seconds(media.latest_media.end.total_seconds())}',
-                                         DrawMode.FLIP)
+                    views[config.view].draw(gtk)
                 else:
-                    gtk.draw_text(2, 2, "No music")
+                    gtk.draw_center_text(2, "No music")
 
             if media.latest_event == 'new_song':
                 if event_start is None:

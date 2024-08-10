@@ -2,10 +2,11 @@ from datetime import timedelta, datetime
 from io import BytesIO
 
 from PIL import Image
-from PIL.Image import Dither, Palette
 from pydantic import BaseModel
 from winsdk.windows.media.control import GlobalSystemMediaTransportControlsSessionManager
-from winsdk.windows.storage.streams import Buffer, InputStreamOptions
+from winsdk.windows.storage.streams import Buffer, InputStreamOptions, IRandomAccessStreamReference
+
+from gtk import image_to_bitmap
 
 
 class PlayingMedia(BaseModel):
@@ -17,16 +18,44 @@ class PlayingMedia(BaseModel):
     title: str
     artist: str
 
+    @property
+    def position_progress(self) -> float:
+        return self.calculated_position.total_seconds() / self.end.total_seconds()
+
 
 last_position: timedelta | None = None
 last_position_updated: datetime | None = None
 latest_media: PlayingMedia | None = None
 latest_event: str | None = None
-latest_icon = None
+latest_bitmap = None
+
+
+async def save_icon(thumbnail: IRandomAccessStreamReference | None):
+    global latest_bitmap
+
+    if not thumbnail:
+        latest_bitmap = None
+        return
+
+    stream = await thumbnail.open_read_async()
+
+    buffer = Buffer(stream.size)
+    await stream.read_async(buffer, stream.size, InputStreamOptions.NONE)
+
+    bytes_arr = buffer.__buffer__(0).tobytes()
+
+    stream.close()
+
+    img = Image.open(BytesIO(bytes_arr))
+    img.thumbnail((40, 40))
+
+    latest_bitmap = image_to_bitmap(img)
+
+    img.close()
 
 
 async def get_media_info() -> None:
-    global last_position, last_position_updated, latest_media, latest_event, latest_icon
+    global last_position, last_position_updated, latest_media, latest_event, latest_bitmap
 
     sessions = await GlobalSystemMediaTransportControlsSessionManager.request_async()
 
@@ -59,6 +88,7 @@ async def get_media_info() -> None:
         if latest_media:
             is_new_song = latest_media.title != media.title or latest_media.artist != media.artist
             if is_new_song:
+                await save_icon(info.thumbnail)
                 latest_event = 'new_song'
             else:
                 if latest_media.playing != media.playing:
@@ -67,23 +97,9 @@ async def get_media_info() -> None:
                     else:
                         latest_event = 'paused'
         else:
-            stream = await info.thumbnail.open_read_async()
-
-            buffer = Buffer(stream.size)
-            await stream.read_async(buffer, stream.size, InputStreamOptions.NONE)
-
-            bytes_arr = buffer.__buffer__(0).tobytes()
-
-            stream.close()
-
-            image = Image.open(BytesIO(bytes_arr))
-            image.thumbnail((40, 40))
-            bmp = image.convert("1", palette=Palette.ADAPTIVE, dither=Dither.FLOYDSTEINBERG)
-
-            bmp.show()
-
-            latest_icon = list(bmp.getdata())
-            bmp.close()
-            image.close()
+            await save_icon(info.thumbnail)
 
         latest_media = media
+    else:
+        latest_media = None
+        latest_bitmap = None

@@ -4,6 +4,8 @@ from typing import Literal
 
 from pydantic import BaseModel
 
+ViewName = Literal['icon_less', 'with_icon']
+
 
 class Config(BaseModel):
     width: int = 128
@@ -14,6 +16,7 @@ class Config(BaseModel):
     events_duration: float = 1.
     text_speed: float = 6.
     row_gap: int = 6
+    view: ViewName = 'with_icon'
 
     def __init__(self) -> None:
         if os.path.exists('config.json'):
