@@ -72,19 +72,28 @@ class BasicGTK:
         self.draw_text(x, y, text, mode, **kwargs)
 
     def draw_big_text(self, x: int, y: int, text: str, speed: float = 1., **kwargs):
-        max_width = self.screen.size[0] * .9 - x
+        max_width = self.screen.size[0] - x
         width = get_text_width(text)
         if width > max_width:
             text = text + '   '
             width = get_text_width(text)
-            self.draw_text(x - (math.floor(time.time() * speed) % width), y, text * 2, bounds=(x, y, *self.screen.size), **kwargs)
+
+            full_cycle = width / speed
+
+            cycle = time.time() % (full_cycle + 2)
+            if cycle < 2:
+                self.draw_text(x, y, text)
+            else:
+                self.draw_text(x - (math.floor((cycle - 2) * speed) % width), y, text * 2,
+                               bounds=(x, y, *self.screen.size), **kwargs)
         else:
             self.draw_text(x, y, text)
 
     def draw_progress(self, x: int, y: int, w: int, h: int, v: float, border: int = 1, **kwargs):
         self.draw_rect(x, y, w, h, DrawMode.WHITE, **kwargs)
         self.draw_rect(x + border, y + border, w - border * 2, h - border * 2, DrawMode.BLACK, **kwargs)
-        self.draw_rect(x + border, y + border, math.floor((w - border * 2) * v), h - border * 2, DrawMode.WHITE, **kwargs)
+        self.draw_rect(x + border, y + border, math.floor((w - border * 2) * v), h - border * 2, DrawMode.WHITE,
+                       **kwargs)
 
     def draw_circle(self, cx: int, cy: int, r: float, mode: DrawMode = DrawMode.WHITE, **kwargs):
         if r < 0:
