@@ -57,7 +57,7 @@ async def draw_thread(screen: OLEDScreen):
                     gtk.draw_circle(screen.size[0] // 2, screen.size[1] // 2, elapsed * 50, DrawMode.FLIP)
                     gtk.draw_circle(screen.size[0] // 2, screen.size[1] // 2, (elapsed - 0.4) * 50, DrawMode.FLIP)
 
-                    screen_gtk.draw_bitmap(0, 0, main_buffer.size[0], main_buffer.size[1], gtk.as_bitmap,
+                    screen_gtk.draw_bitmap(0, 0, main_buffer.size[0], main_buffer.size[1], gtk.buffer.buffer,
                                            f=DrawMode.BLACK)
                 case 'slide_x':
                     x = -math.floor(elapsed * (screen.size[0] / 3))
@@ -65,7 +65,7 @@ async def draw_thread(screen: OLEDScreen):
                     screen_gtk.draw_bitmap(x, 0, screen.size[0], screen.size[1], super_buffer.buffer,
                                            f=DrawMode.BLACK)
                     screen_gtk.draw_bitmap(x + screen.size[0], 0, main_buffer.size[0], main_buffer.size[1],
-                                           gtk.as_bitmap,
+                                           gtk.buffer.buffer,
                                            f=DrawMode.BLACK)
                 case 'slide_y':
                     y = -math.floor(elapsed * (screen.size[1] / 3))
@@ -73,7 +73,7 @@ async def draw_thread(screen: OLEDScreen):
                     screen_gtk.draw_bitmap(0, y, screen.size[0], screen.size[1], super_buffer.buffer,
                                            f=DrawMode.BLACK)
                     screen_gtk.draw_bitmap(0, y + screen.size[1], main_buffer.size[0], main_buffer.size[1],
-                                           gtk.as_bitmap,
+                                           gtk.buffer.buffer,
                                            f=DrawMode.BLACK)
                 case _:
                     raise NotImplementedError(f'Unknown transition: {using_transition}')
@@ -84,7 +84,7 @@ async def draw_thread(screen: OLEDScreen):
                 super_buffer = None
                 using_transition = None
         else:
-            screen_gtk.draw_bitmap(0, 0, main_buffer.size[0], main_buffer.size[1], gtk.as_bitmap, f=DrawMode.BLACK)
+            screen_gtk.draw_bitmap(0, 0, main_buffer.size[0], main_buffer.size[1], gtk.buffer.buffer, f=DrawMode.BLACK)
 
         await screen.send(main_buffer.buffer)
 

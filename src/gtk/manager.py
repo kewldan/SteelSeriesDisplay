@@ -112,7 +112,3 @@ class BasicGTK:
             self.buffer.buffer[byte_index] &= ~(1 << bit_index)
         elif v == DrawMode.FLIP:
             self.buffer.buffer[byte_index] ^= (1 << bit_index)
-
-    @property
-    def as_bitmap(self) -> list[int]:
-        return self.buffer.buffer.copy()
