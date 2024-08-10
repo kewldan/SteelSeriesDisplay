@@ -49,7 +49,7 @@ async def save_icon(thumbnail: IRandomAccessStreamReference | None):
     stream.close()
 
     img = Image.open(BytesIO(bytes_arr))
-    img.thumbnail((40, 40))
+    img = img.resize((40, 40))
 
     latest_bitmap = image_to_bitmap(img)
 
