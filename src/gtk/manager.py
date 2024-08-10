@@ -91,7 +91,7 @@ class BasicGTK:
                     self.set_pixel(x, y, mode)
 
     def set_pixel(self, x: int, y: int, v: DrawMode):
-        if x < 0 or y < 0 or x > self.screen.size[0] or y > self.screen.size[1]:
+        if x < 0 or y < 0 or x >= self.screen.size[0] or y >= self.screen.size[1]:
             return
 
         byte_index = (x + y * self.screen.size[0]) // 8

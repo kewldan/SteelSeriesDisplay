@@ -1,7 +1,11 @@
 from datetime import timedelta, datetime
+from io import BytesIO
 
+from PIL import Image
+from PIL.Image import Dither, Palette
 from pydantic import BaseModel
 from winsdk.windows.media.control import GlobalSystemMediaTransportControlsSessionManager
+from winsdk.windows.storage.streams import Buffer, InputStreamOptions
 
 
 class PlayingMedia(BaseModel):
@@ -18,10 +22,11 @@ last_position: timedelta | None = None
 last_position_updated: datetime | None = None
 latest_media: PlayingMedia | None = None
 latest_event: str | None = None
+latest_icon = None
 
 
 async def get_media_info() -> None:
-    global last_position, last_position_updated, latest_media, latest_event
+    global last_position, last_position_updated, latest_media, latest_event, latest_icon
 
     sessions = await GlobalSystemMediaTransportControlsSessionManager.request_async()
 
@@ -61,5 +66,24 @@ async def get_media_info() -> None:
                         latest_event = 'resumed'
                     else:
                         latest_event = 'paused'
+        else:
+            stream = await info.thumbnail.open_read_async()
+
+            buffer = Buffer(stream.size)
+            await stream.read_async(buffer, stream.size, InputStreamOptions.NONE)
+
+            bytes_arr = buffer.__buffer__(0).tobytes()
+
+            stream.close()
+
+            image = Image.open(BytesIO(bytes_arr))
+            image.thumbnail((40, 40))
+            bmp = image.convert("1", palette=Palette.ADAPTIVE, dither=Dither.FLOYDSTEINBERG)
+
+            bmp.show()
+
+            latest_icon = list(bmp.getdata())
+            bmp.close()
+            image.close()
 
         latest_media = media
