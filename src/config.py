@@ -5,12 +5,13 @@ from typing import Literal
 from pydantic import BaseModel
 
 ViewName = Literal['icon_less', 'with_icon']
+Transition = Literal['disabled', 'circle', 'slide_x', 'slide_y', 'random']
 
 
 class Config(BaseModel):
     width: int = 128
     height: int = 40
-    transition: Literal['disabled', 'circle', 'slide'] = 'circle'
+    transition: Transition = 'circle'
     refresh_rate: int = 10
     music_refresh_rate: int = 20
     events_duration: float = 0.

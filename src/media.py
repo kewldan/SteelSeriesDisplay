@@ -1,9 +1,11 @@
+import asyncio
 from datetime import timedelta, datetime
 from io import BytesIO
 
 from PIL import Image
 from pydantic import BaseModel
-from winsdk.windows.media.control import GlobalSystemMediaTransportControlsSessionManager
+from winsdk.windows.media.control import GlobalSystemMediaTransportControlsSessionManager, \
+    GlobalSystemMediaTransportControlsSession
 from winsdk.windows.storage.streams import Buffer, InputStreamOptions, IRandomAccessStreamReference
 
 from gtk import image_to_bitmap
@@ -54,12 +56,22 @@ async def save_icon(thumbnail: IRandomAccessStreamReference | None):
     img.close()
 
 
+async def get_session() -> GlobalSystemMediaTransportControlsSession | None:
+    current_session = None
+
+    async with asyncio.timeout(2):
+        sessions = await GlobalSystemMediaTransportControlsSessionManager.request_async()
+
+        while current_session is None:
+            current_session = sessions.get_current_session()
+    return current_session
+
+
 async def get_media_info() -> None:
     global last_position, last_position_updated, latest_media, latest_event, latest_bitmap
 
-    sessions = await GlobalSystemMediaTransportControlsSessionManager.request_async()
+    current_session = await get_session()
 
-    current_session = sessions.get_current_session()
     if current_session:
         timeline = current_session.get_timeline_properties()
         playback_info = current_session.get_playback_info()

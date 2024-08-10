@@ -5,7 +5,6 @@ class OLEDScreen:
     def __init__(self, gs: GameSense, size: tuple[int, int]):
         self.gs = gs
         self.size = size
-        self.buffer = [0] * (size[0] * size[1] // 8)
 
     async def init(self):
         await self.gs.bind_event('DISPLAY', handlers=[
@@ -14,7 +13,7 @@ class OLEDScreen:
                     {
 
                         "has-text": False,
-                        "image-data": self.buffer
+                        "image-data": [0] * (self.size[0] * self.size[1] // 8)
                     }
                 ],
 
@@ -24,11 +23,11 @@ class OLEDScreen:
             }
         ])
 
-    async def release(self):
+    async def send(self, buffer: list[int]):
         data = {
             "value": next(self.gs.value_cycler),
             "frame": {
-                f"image-data-{self.size[0]}x{self.size[1]}": self.buffer
+                f"image-data-{self.size[0]}x{self.size[1]}": buffer
             }
         }
 
