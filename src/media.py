@@ -59,11 +59,15 @@ async def save_icon(thumbnail: IRandomAccessStreamReference | None):
 async def get_session() -> GlobalSystemMediaTransportControlsSession | None:
     current_session = None
 
-    async with asyncio.timeout(2):
-        sessions = await GlobalSystemMediaTransportControlsSessionManager.request_async()
+    try:
+        async with asyncio.timeout(2):
+            sessions = await GlobalSystemMediaTransportControlsSessionManager.request_async()
 
-        while current_session is None:
-            current_session = sessions.get_current_session()
+            while current_session is None:
+                current_session = sessions.get_current_session()
+    except Exception:
+        pass
+
     return current_session
 
 
